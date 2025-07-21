@@ -25,19 +25,18 @@ static struct genl_ops modreveal_ops[] = {
   {
     .cmd = MODREVEAL_C_GET_MODULES,
     .flags = 0,
-    .policy = modreveal_genl_policy,
     .doit = get_modules,
   },
 };
 
 static struct genl_family modreveal_genl_family = {
-  .id = 0x0,
   .hdrsize = 0,
   .name = "modreveal",
   .version = 1,
   .maxattr = MODREVEAL_A_MAX,
+  .policy = modreveal_genl_policy,
   .ops = modreveal_ops,
-  .n_ops = MODREVEAL_C_MAX,
+  .n_ops = ARRAY_SIZE(modreveal_ops),
 };
 
 typedef void *(*kallsyms_lookup_name_t)(const char *name);
@@ -95,7 +94,7 @@ static int get_modules(struct sk_buff *skb, struct genl_info *info) {
   return 0;
 }
 
-void resolve_kallsyms_lookup_name(void) {
+static void resolve_kallsyms_lookup_name(void) {
   static struct kprobe kp = {
     .symbol_name = "kallsyms_lookup_name"
   };
@@ -125,3 +124,4 @@ module_init(modinit);
 module_exit(modexit);
 MODULE_LICENSE("GPL");
 MODULE_VERSION("0.1.0");
+MODULE_DESCRIPTION("Kernel module to reveal hidden LKMs");
